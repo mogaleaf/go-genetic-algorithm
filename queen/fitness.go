@@ -2,8 +2,8 @@ package queen
 
 func (p *Phenotype) CalcFitness() int {
 	count := 0
-	for i := (0); i < 8; i++ {
-		for j := i + 1; j < 8; j++ {
+	for i := 0; i < sizeChessBoard; i++ {
+		for j := i + 1; j < sizeChessBoard; j++ {
 			if (j-i)*(j-i) == (p.board[j]-p.board[i])*(p.board[j]-p.board[i]) {
 				count++
 			}

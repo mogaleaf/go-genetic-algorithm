@@ -6,7 +6,7 @@ import (
 )
 
 func (p1 *Genotype) Recombine(p2 evolution.GenotypeI) []evolution.GenotypeI {
-	swapK := helper.GenerateUintNumber(8)
+	swapK := helper.GenerateUintNumber(sizeChessBoard)
 	if swapK == 0 {
 		return []evolution.GenotypeI{
 			&Genotype{
@@ -18,10 +18,10 @@ func (p1 *Genotype) Recombine(p2 evolution.GenotypeI) []evolution.GenotypeI {
 		}
 	}
 	k1 := Genotype{
-		board: make([]int, 8),
+		board: make([]int, sizeChessBoard),
 	}
 	k2 := Genotype{
-		board: make([]int, 8),
+		board: make([]int, sizeChessBoard),
 	}
 	for j := uint64(0); j < swapK; j++ {
 		k1.board[j] = p1.board[j]
@@ -44,7 +44,7 @@ func contains(slice []int, value int) bool {
 func fillWithMissing(toFill []int, with []int, swapK uint64) {
 	j := 0
 	i := swapK
-	for i < 8 && j < 8 {
+	for i < sizeChessBoard && j < sizeChessBoard {
 		if !contains(toFill, with[j]) {
 			toFill[i] = with[j]
 			i++
