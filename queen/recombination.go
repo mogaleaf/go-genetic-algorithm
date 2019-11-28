@@ -5,30 +5,30 @@ import (
 	"go-evol/helper"
 )
 
-func (p1 *Genotype) Recombine(p2 evolution.GenotypeI) []evolution.GenotypeI {
-	swapK := helper.GenerateUintNumber(sizeChessBoard)
+func (p1 *genotype) Recombine(p2 evolution.GenotypeI) []evolution.GenotypeI {
+	swapK := helper.GenerateUintNumber(len(p1.board))
 	if swapK == 0 {
 		return []evolution.GenotypeI{
-			&Genotype{
+			&genotype{
 				board: p1.board,
 			},
-			&Genotype{
-				board: p2.(*Genotype).board,
+			&genotype{
+				board: p2.(*genotype).board,
 			},
 		}
 	}
-	k1 := Genotype{
-		board: make([]int, sizeChessBoard),
+	k1 := genotype{
+		board: make([]int, len(p1.board)),
 	}
-	k2 := Genotype{
-		board: make([]int, sizeChessBoard),
+	k2 := genotype{
+		board: make([]int, len(p1.board)),
 	}
 	for j := uint64(0); j < swapK; j++ {
 		k1.board[j] = p1.board[j]
-		k2.board[j] = p2.(*Genotype).board[j]
+		k2.board[j] = p2.(*genotype).board[j]
 	}
-	fillWithMissing(k1.board, p2.(*Genotype).board, swapK)
-	fillWithMissing(k2.board, p1.board, swapK)
+	fillWithMissing(k1.board, p2.(*genotype).board, int(swapK))
+	fillWithMissing(k2.board, p1.board, int(swapK))
 	return []evolution.GenotypeI{&k1, &k2}
 }
 
@@ -41,10 +41,10 @@ func contains(slice []int, value int) bool {
 	return false
 }
 
-func fillWithMissing(toFill []int, with []int, swapK uint64) {
+func fillWithMissing(toFill []int, with []int, swapK int) {
 	j := 0
 	i := swapK
-	for i < sizeChessBoard && j < sizeChessBoard {
+	for i < len(with) && j < len(with) {
 		if !contains(toFill, with[j]) {
 			toFill[i] = with[j]
 			i++

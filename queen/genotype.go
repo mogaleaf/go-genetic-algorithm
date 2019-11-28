@@ -7,30 +7,30 @@ import (
 	"time"
 )
 
-const (
-	sizeChessBoard = 15
-)
+type QueensChessBoard struct {
+	SizeChessBoard int
+}
 
-type Phenotype struct {
+type phenotype struct {
 	board []int
 }
 
-type Genotype struct {
+type genotype struct {
 	board []int
 }
 
-func (g *Genotype) GetPhenotype() evolution.PhenotypeI {
-	phen := Phenotype{
+func (g *genotype) GetPhenotype() evolution.PhenotypeI {
+	phen := phenotype{
 		board: g.board,
 	}
 	return &phen
 }
 
-func NewRandQueenGenotype() evolution.GenotypeI {
-	newGen := Genotype{}
-	newGen.board = make([]int, sizeChessBoard)
-	newGen.board = make([]int, sizeChessBoard)
-	for i := 0; i < sizeChessBoard; i++ {
+func (q *QueensChessBoard) NewRandQueenGenotype() evolution.GenotypeI {
+	newGen := genotype{}
+	newGen.board = make([]int, q.SizeChessBoard)
+	newGen.board = make([]int, q.SizeChessBoard)
+	for i := 0; i < q.SizeChessBoard; i++ {
 		newGen.board[i] = i
 	}
 	rand.Seed(time.Now().UnixNano())
@@ -38,16 +38,16 @@ func NewRandQueenGenotype() evolution.GenotypeI {
 	return &newGen
 }
 
-func (g *Genotype) Print() {
-	for j := 0; j < sizeChessBoard; j++ {
+func (g *genotype) Print() {
+	for j := 0; j < len(g.board); j++ {
 		print(fmt.Sprintf("%d", g.board[j]))
 	}
 	println()
 }
 
-func (p *Phenotype) Print() {
-	for i := 0; i < sizeChessBoard; i++ {
-		for j := 0; j < sizeChessBoard; j++ {
+func (p *phenotype) Print() {
+	for i := 0; i < len(p.board); i++ {
+		for j := 0; j < len(p.board); j++ {
 			if j == p.board[i] {
 				print(" 1 ")
 			} else {

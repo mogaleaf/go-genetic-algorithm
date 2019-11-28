@@ -1,9 +1,9 @@
 package queen
 
-func (p *Phenotype) CalcFitness() int {
+func (p *phenotype) CalcFitness() int {
 	count := 0
-	for i := 0; i < sizeChessBoard; i++ {
-		for j := i + 1; j < sizeChessBoard; j++ {
+	for i := 0; i < len(p.board); i++ {
+		for j := i + 1; j < len(p.board); j++ {
 			if (j-i)*(j-i) == (p.board[j]-p.board[i])*(p.board[j]-p.board[i]) {
 				count++
 			}
@@ -12,6 +12,6 @@ func (p *Phenotype) CalcFitness() int {
 	return -count
 }
 
-func (p *Phenotype) Good() bool {
+func (p *phenotype) Good() bool {
 	return p.CalcFitness() == 0
 }
