@@ -13,6 +13,7 @@ const (
 	FPS SelectionProbType = iota
 	RANK
 	BEST
+	REPLACE
 )
 
 type SelectionI interface {
