@@ -1,10 +1,7 @@
 package evolution
 
-type Phenotype struct {
-}
-
 type PhenotypeI interface {
-	CalcFitness() int
+	CalcFitness() float64
 	Good() bool
 	Print()
 }
@@ -13,7 +10,7 @@ type GenotypeI interface {
 	GetPhenotype() PhenotypeI
 	Mutate()
 	Recombine(GenotypeI) []GenotypeI
-	Print()
 }
 
+//Create a New random Genotype to init the algo
 type CreateRandomGeneFunc func() GenotypeI

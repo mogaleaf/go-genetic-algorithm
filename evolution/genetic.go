@@ -1,33 +1,48 @@
 package evolution
 
-import (
-	"go-evol/helper"
-	"math/rand"
-	"sort"
-	"time"
-)
-
-type byFitness []GenotypeI
-
-func (a byFitness) Len() int      { return len(a) }
-func (a byFitness) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a byFitness) Less(i, j int) bool {
-	return a[i].GetPhenotype().CalcFitness() < a[j].GetPhenotype().CalcFitness()
+type EvolutionConfig struct {
+	// Randomly create the genotype
+	Create CreateRandomGeneFunc
+	// Max iteration before stopping
+	NumberIterationMax int
+	// Size of the population
+	PopulationSize int
+	//SelectionMethod of the parents
+	ParentsSelectionConfig SelectionConfig
+	//Next generation Selection
+	NextGenerationSelectionConfig GenerationSelectionConfig
 }
 
-func Evolve(create CreateRandomGeneFunc, numberIterationMax int, populationSize int) (PhenotypeI, int) {
+type SelectionConfig struct {
+	// SelectionMethod method
+	SelectionMethod SelectionI
+	//Probability type (FPS,RANK)
+	ProbabilityType SelectionProbType
+	//For Rank selection SP
+	SP float64
+}
+
+type GenerationSelectionConfig struct {
+	*SelectionConfig
+}
+
+func Evolve(config EvolutionConfig) (PhenotypeI, int) {
 	//1. Initialise
-	population := initPopulation(create, populationSize)
+	population := initPopulation(config.Create, config.PopulationSize)
 	//2. evaluate
 	winner := evaluate(population)
 	if winner != nil {
 		return winner, 0
 	}
-	for i := 0; i < numberIterationMax; i++ {
+	for i := 0; i < config.NumberIterationMax; i++ {
 		//1. Select parents
-		p1, p2 := selectParent(population)
-		//2.Recombine
-		children := p1.Recombine(p2)
+		parents := selectParents(config.ParentsSelectionConfig, population)
+
+		//2.Recombine TODO
+		var children []GenotypeI
+		for i := 0; i < len(parents)-1; i = i + 2 {
+			children = append(children, parents[i].Recombine(parents[i+1])...)
+		}
 		//3. Mutate
 		for _, child := range children {
 			child.Mutate()
@@ -38,9 +53,21 @@ func Evolve(create CreateRandomGeneFunc, numberIterationMax int, populationSize 
 			return winner, i
 		}
 		//5. Select next gen
-		population = selectNextGeneration(population, children, populationSize)
+		population = selectNextGeneration(population, children, config.PopulationSize)
 	}
-	return nil, numberIterationMax
+	return nil, config.NumberIterationMax
+}
+
+func selectParents(config SelectionConfig, population []GenotypeI) []GenotypeI {
+	var parents []GenotypeI
+
+	switch config.ProbabilityType {
+	case FPS:
+		parents = selectParentFPS(population, config.SelectionMethod)
+	case RANK:
+		parents = selectParentRank(population, config.SP, config.SelectionMethod)
+	}
+	return parents
 }
 
 func initPopulation(createRandom func() GenotypeI, populationSize int) []GenotypeI {
@@ -49,25 +76,6 @@ func initPopulation(createRandom func() GenotypeI, populationSize int) []Genotyp
 		is[i] = createRandom()
 	}
 	return is
-}
-
-func selectParent(population []GenotypeI) (GenotypeI, GenotypeI) {
-	parentsPossibility := make([]GenotypeI, 5)
-	for i := 0; i < 5; i++ {
-		number := helper.GenerateUintNumber(len(population))
-		parentsPossibility[i] = population[number]
-	}
-	sort.Sort(byFitness(parentsPossibility))
-	return parentsPossibility[4], parentsPossibility[3]
-}
-
-func selectNextGeneration(population []GenotypeI, children []GenotypeI, populationSize int) []GenotypeI {
-	population = append(population, children...)
-	sort.Sort(byFitness(population))
-	newPopulation := population[len(population)-populationSize:]
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(newPopulation), func(i, j int) { newPopulation[i], newPopulation[j] = newPopulation[j], newPopulation[i] })
-	return newPopulation
 }
 
 func evaluate(population []GenotypeI) PhenotypeI {

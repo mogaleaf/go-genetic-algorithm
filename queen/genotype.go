@@ -1,48 +1,39 @@
 package queen
 
 import (
-	"fmt"
 	"go-evol/evolution"
+	"go-evol/evolution/permutation"
 	"math/rand"
-	"time"
 )
 
 type QueensChessBoard struct {
 	SizeChessBoard int
 }
 
+//Internal queen phenotype
 type phenotype struct {
-	board []int
+	board        []int
+	knownFitness bool
+	fitness      float64
 }
 
-type genotype struct {
-	board []int
-}
-
-func (g *genotype) GetPhenotype() evolution.PhenotypeI {
-	phen := phenotype{
-		board: g.board,
+func GetPhenotype(g evolution.GenotypeI) evolution.PhenotypeI {
+	return &phenotype{
+		board: g.(*permutation.Genotype).Permutation,
 	}
-	return &phen
 }
 
 func (q *QueensChessBoard) NewRandQueenGenotype() evolution.GenotypeI {
-	newGen := genotype{}
-	newGen.board = make([]int, q.SizeChessBoard)
-	newGen.board = make([]int, q.SizeChessBoard)
-	for i := 0; i < q.SizeChessBoard; i++ {
-		newGen.board[i] = i
+	newGen := permutation.Genotype{
+		GetPhenotypeInternal: GetPhenotype,
+		Permutation:          rand.Perm(q.SizeChessBoard),
+		PermutationSize:      q.SizeChessBoard,
+		RecombinationType:    permutation.CUT_CROSS_FILL,
+		RecombinationRate:    0.9,
+		MutationRate:         0.8,
+		MutationType:         permutation.SWAP,
 	}
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(newGen.board), func(i, j int) { newGen.board[i], newGen.board[j] = newGen.board[j], newGen.board[i] })
 	return &newGen
-}
-
-func (g *genotype) Print() {
-	for j := 0; j < len(g.board); j++ {
-		print(fmt.Sprintf("%d", g.board[j]))
-	}
-	println()
 }
 
 func (p *phenotype) Print() {
@@ -56,5 +47,4 @@ func (p *phenotype) Print() {
 		}
 		println()
 	}
-
 }
