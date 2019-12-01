@@ -5,12 +5,26 @@ import (
 	"go-evol/helper"
 )
 
+func copyGenotype(p1 *Genotype) *Genotype {
+	copyPerm := make([]int, len(p1.Permutation))
+	copy(copyPerm, p1.Permutation)
+	return &Genotype{
+		Permutation:          copyPerm,
+		PermutationSize:      p1.PermutationSize,
+		MutationType:         p1.MutationType,
+		GetPhenotypeInternal: p1.GetPhenotypeInternal,
+		MutationRate:         p1.MutationRate,
+		RecombinationRate:    p1.RecombinationRate,
+		RecombinationType:    p1.RecombinationType,
+	}
+}
+
 func (g *Genotype) Recombine(p2 evolution.GenotypeI) []evolution.GenotypeI {
 	shouldRecombine := helper.GenerateFloatNumber() < g.RecombinationRate
 	if !shouldRecombine {
 		return []evolution.GenotypeI{
-			g,
-			p2,
+			copyGenotype(g),
+			copyGenotype(p2.(*Genotype)),
 		}
 	}
 	switch g.RecombinationType {
@@ -24,8 +38,8 @@ func (p1 *Genotype) RecombineCutAndCrossFill(p2 evolution.GenotypeI) []evolution
 	swapK := helper.GenerateUintNumber(len(p1.Permutation))
 	if swapK == 0 {
 		return []evolution.GenotypeI{
-			p1,
-			p2,
+			copyGenotype(p1),
+			copyGenotype(p2.(*Genotype)),
 		}
 	}
 	k1 := buildNewFromParent(p1)

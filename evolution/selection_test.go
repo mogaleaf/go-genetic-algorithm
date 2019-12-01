@@ -26,7 +26,7 @@ func Test_selectParentFPS(t *testing.T) {
 		})),
 	}
 
-	selectParentFPS(m, newMockSelectionI(withFuncselectPopulation(func(population []GenotypeI, a []float64) []GenotypeI {
+	selectFPS(m, newMockSelectionI(withFuncselectPopulation(func(population []GenotypeI, a []float64) []GenotypeI {
 		for i, ai := range a {
 			switch i {
 			case 0:
@@ -60,7 +60,7 @@ func Test_selectParentRank(t *testing.T) {
 		})),
 	}
 
-	selectParentRank(m, 1.5, newMockSelectionI(withFuncgetMu(func() int {
+	selectRank(m, 1.5, newMockSelectionI(withFuncgetMu(func() int {
 		return 3
 	}),
 		withFuncselectPopulation(func(population []GenotypeI, a []float64) []GenotypeI {

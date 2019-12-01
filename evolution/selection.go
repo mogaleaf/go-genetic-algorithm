@@ -12,6 +12,7 @@ type SelectionProbType int
 const (
 	FPS SelectionProbType = iota
 	RANK
+	BEST
 )
 
 type SelectionI interface {
@@ -31,26 +32,11 @@ type SusSelection struct {
 	*Selection
 }
 
-func selectNextGeneration(population []GenotypeI, children []GenotypeI, populationSize int) []GenotypeI {
-	population = append(population, children...)
-	sort.Sort(byFitness(population))
-	newPopulation := population[len(population)-populationSize:]
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(newPopulation), func(i, j int) { newPopulation[i], newPopulation[j] = newPopulation[j], newPopulation[i] })
-	return newPopulation
+type BestSelection struct {
+	*Selection
 }
 
-func selectParent(population []GenotypeI) (GenotypeI, GenotypeI) {
-	parentsPossibility := make([]GenotypeI, 5)
-	for i := 0; i < 5; i++ {
-		number := helper.GenerateUintNumber(len(population))
-		parentsPossibility[i] = population[number]
-	}
-	sort.Sort(byFitness(parentsPossibility))
-	return parentsPossibility[4], parentsPossibility[3]
-}
-
-func selectParentFPS(population []GenotypeI, selection SelectionI) []GenotypeI {
+func selectFPS(population []GenotypeI, selection SelectionI) []GenotypeI {
 	parentsPr := make([]float64, len(population))
 	a := make([]float64, len(population))
 	sum := 0.0
@@ -66,7 +52,7 @@ func selectParentFPS(population []GenotypeI, selection SelectionI) []GenotypeI {
 	return selection.selectPopulation(population, a)
 }
 
-func selectParentRank(population []GenotypeI, s float64, selection SelectionI) []GenotypeI {
+func selectRank(population []GenotypeI, s float64, selection SelectionI) []GenotypeI {
 	parentsPr := make([]float64, len(population))
 	a := make([]float64, len(population))
 	sort.Sort(byFitness(population))
@@ -77,6 +63,10 @@ func selectParentRank(population []GenotypeI, s float64, selection SelectionI) [
 		a[i] = accumulateProb
 	}
 	return selection.selectPopulation(population, a)
+}
+
+func selectBest(population []GenotypeI, s float64, selection SelectionI) []GenotypeI {
+	return selection.selectPopulation(population, nil)
 }
 
 func (r *Selection) getMu() int {
@@ -111,4 +101,12 @@ func (s *SusSelection) selectPopulation(population []GenotypeI, a []float64) []G
 		i++
 	}
 	return matingPool
+}
+
+func (s *BestSelection) selectPopulation(population []GenotypeI, a []float64) []GenotypeI {
+	sort.Sort(byFitness(population))
+	newPopulation := population[len(population)-s.Mu:]
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(newPopulation), func(i, j int) { newPopulation[i], newPopulation[j] = newPopulation[j], newPopulation[i] })
+	return newPopulation
 }

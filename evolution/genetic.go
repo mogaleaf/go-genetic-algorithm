@@ -14,7 +14,7 @@ type EvolutionConfig struct {
 	//SelectionMethod of the parents
 	ParentsSelectionConfig SelectionConfig
 	//Next generation Selection
-	NextGenerationSelectionConfig GenerationSelectionConfig
+	SurvivorSelectionConfig GenerationSelectionConfig
 }
 
 type SelectionConfig struct {
@@ -57,7 +57,7 @@ func Evolve(config EvolutionConfig) (PhenotypeI, int) {
 			return winner, i
 		}
 		//5. Select next gen
-		population = selectNextGeneration(population, children, config.PopulationSize)
+		population = selectNextGen(config.SurvivorSelectionConfig, append(population, children...))
 	}
 	return nil, config.NumberIterationMax
 }
@@ -67,11 +67,25 @@ func selectParents(config SelectionConfig, population []GenotypeI) []GenotypeI {
 
 	switch config.ProbabilityType {
 	case FPS:
-		parents = selectParentFPS(population, config.SelectionMethod)
+		parents = selectFPS(population, config.SelectionMethod)
 	case RANK:
-		parents = selectParentRank(population, config.SP, config.SelectionMethod)
+		parents = selectRank(population, config.SP, config.SelectionMethod)
 	}
 	return parents
+}
+
+func selectNextGen(config GenerationSelectionConfig, population []GenotypeI) []GenotypeI {
+	var nextGen []GenotypeI
+
+	switch config.ProbabilityType {
+	case FPS:
+		nextGen = selectFPS(population, config.SelectionMethod)
+	case RANK:
+		nextGen = selectRank(population, config.SP, config.SelectionMethod)
+	case BEST:
+		nextGen = selectBest(population, config.SP, config.SelectionMethod)
+	}
+	return nextGen
 }
 
 func initPopulation(createRandom func() GenotypeI, populationSize int) []GenotypeI {
