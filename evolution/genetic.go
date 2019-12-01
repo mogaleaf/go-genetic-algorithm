@@ -1,5 +1,9 @@
 package evolution
 
+import (
+	"sync"
+)
+
 type EvolutionConfig struct {
 	// Randomly create the genotype
 	Create CreateRandomGeneFunc
@@ -79,11 +83,23 @@ func initPopulation(createRandom func() GenotypeI, populationSize int) []Genotyp
 }
 
 func evaluate(population []GenotypeI) PhenotypeI {
+	phenotypeResponse := make(chan PhenotypeI, len(population))
+	var wg sync.WaitGroup
+	wg.Add(len(population))
 	for _, child := range population {
-		phenotype := child.GetPhenotype()
-		if phenotype.Good() {
-			return phenotype
-		}
+		go func(child GenotypeI) {
+			defer wg.Done()
+			phenotype := child.GetPhenotype()
+			if phenotype.Good() {
+				phenotypeResponse <- phenotype
+			}
+			return
+		}(child)
+	}
+	wg.Wait()
+	close(phenotypeResponse)
+	for msg := range phenotypeResponse {
+		return msg
 	}
 	return nil
 }

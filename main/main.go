@@ -10,7 +10,7 @@ func main() {
 	println("genetic algo")
 
 	q := queen.QueensChessBoard{
-		SizeChessBoard: 10,
+		SizeChessBoard: 100,
 	}
 
 	selection := evolution.RouletteWheelSelection{
