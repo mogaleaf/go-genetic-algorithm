@@ -24,9 +24,11 @@ func (r *ProbabilitySelection) SelectPopulation(population []genes.GenotypeI) []
 	a := []float64{}
 	switch r.ProbabilityType {
 	case FPS:
-		a = append(a, r.SelectFPS(population)...)
+		fps := r.SelectFPS(population)
+		a = append(a, fps...)
 	case RANK:
-		a = append(a, r.SelectRank(population, r.SP)...)
+		rank := r.SelectRank(population, r.SP)
+		a = append(a, rank...)
 	}
 	switch r.AlgoType {
 	case SUS:
@@ -85,8 +87,8 @@ func (s *ProbabilitySelection) sus(population []genes.GenotypeI, a []float64) []
 	i := 0
 	matingPool := make([]genes.GenotypeI, s.Mu)
 	r := helper.GenerateFloatNumberRange(1 / float64(s.Mu))
-	for currentMember < s.Mu {
-		for r <= a[i] {
+	for currentMember <= s.Mu && i < len(a) {
+		for r <= a[i] && i < len(a) {
 			matingPool[currentMember] = population[i]
 			r = r + (1 / float64(s.Mu))
 			currentMember++

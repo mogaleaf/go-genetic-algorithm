@@ -7,6 +7,7 @@ import (
 	selection2 "go-evol/evolution/selection"
 	"go-evol/onemax"
 
+	"golang.org/x/image/colornames"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
@@ -16,25 +17,23 @@ func main() {
 	println("genetic algo")
 
 	q := onemax.OneMaxProblem{
-		L: 25,
+		L: 75,
 	}
 	populationSize := 100
-	selection := selection2.TournamentSelection{
+	parentSelection := selection2.TournamentSelection{
 		Selection: &selection2.Selection{
 			Mu: populationSize,
 		},
+		//ProbabilityType:selection2.RANK,
+		//AlgoType:selection2.SUS,
+		//SP:1.5,
+
 		K: 2,
 	}
-	selection2 := selection2.ReplaceSelection{
+	survivorSelection := selection2.ReplaceSelection{
 		Selection: &selection2.Selection{
 			Mu: populationSize,
 		},
-	}
-	parentsSelection := evolution.SelectionConfig{
-		SelectionMethod: &selection,
-	}
-	survivorSelection := evolution.SelectionConfig{
-		SelectionMethod: &selection2,
 	}
 
 	recorder := NewMyRecorder()
@@ -42,8 +41,12 @@ func main() {
 		q.NewRandOneMaxGenotype,
 		evolution.WithNumberIterationMax(100),
 		evolution.WithPopulationSize(populationSize),
-		evolution.WithParentsSelectionConfig(parentsSelection),
-		evolution.WithSurvivorSelectionConfig(survivorSelection),
+		evolution.WithParentsSelectionConfig(evolution.SelectionConfig{
+			SelectionMethod: &parentSelection,
+		}),
+		evolution.WithSurvivorSelectionConfig(evolution.SelectionConfig{
+			SelectionMethod: &survivorSelection,
+		}),
 		evolution.WithNumberRecorder(recorder))
 
 	resp, it := evolve.Evolve()
@@ -78,16 +81,44 @@ func (r *MyRecorder) CreatedOffspring(gs []genes.GenotypeI, iter int) {}
 func (r *MyRecorder) MutatedOffspring(gs []genes.GenotypeI, iter int) {}
 func (r *MyRecorder) NextGeneration(gs []genes.GenotypeI, iter int) {
 	mean := 0.0
+	worst := 100.0
+	best := 0.0
 	for _, g := range gs {
-		mean += g.GetPhenotype().CalcFitness()
+		fitness := g.GetPhenotype().CalcFitness()
+		mean += fitness
+		if fitness < worst {
+			worst = fitness
+		}
+		if fitness > best {
+			best = fitness
+		}
 	}
 	mean /= float64(len(gs))
-	pts := make(plotter.XYs, 1)
-	pts[0] = plotter.XY{
+	ptsMean := make(plotter.XYs, 1)
+	ptsMean[0] = plotter.XY{
 		X: float64(iter),
 		Y: mean,
 	}
-	_, points, _ := plotter.NewLinePoints(pts)
+	_, points, _ := plotter.NewLinePoints(ptsMean)
+	points.Color = colornames.Blue
+
+	ptsWorst := make(plotter.XYs, 1)
+	ptsWorst[0] = plotter.XY{
+		X: float64(iter),
+		Y: worst,
+	}
+	_, pointsW, _ := plotter.NewLinePoints(ptsWorst)
+	pointsW.Color = colornames.Red
+
+	ptsBest := make(plotter.XYs, 1)
+	ptsBest[0] = plotter.XY{
+		X: float64(iter),
+		Y: best,
+	}
+	_, pointsB, _ := plotter.NewLinePoints(ptsBest)
+	pointsB.Color = colornames.Green
 
 	r.Plot.Add(points)
+	r.Plot.Add(pointsW)
+	r.Plot.Add(pointsB)
 }

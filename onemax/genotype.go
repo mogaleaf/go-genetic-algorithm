@@ -41,7 +41,7 @@ func (q *OneMaxProblem) NewRandOneMaxGenotype() genes.GenotypeI {
 func initRandomGeneString(L int) []uint8 {
 	res := make([]uint8, L)
 	for i, _ := range res {
-		res[i] = uint8(helper.GenerateUintNumber(1))
+		res[i] = uint8(helper.GenerateUintNumber(2))
 	}
 	return res
 }
