@@ -11,8 +11,7 @@ type TournamentSelection struct {
 	K int
 }
 
-
-func (s *TournamentSelection) selectPopulation(population []genes.GenotypeI, a []float64) []genes.GenotypeI {
+func (s *TournamentSelection) SelectPopulation(population []genes.GenotypeI) []genes.GenotypeI {
 	var newPopulation []genes.GenotypeI
 	for i := 0; i < s.Mu; i++ {
 		var currParent []genes.GenotypeI
@@ -26,7 +25,6 @@ func (s *TournamentSelection) selectPopulation(population []genes.GenotypeI, a [
 	return newPopulation
 }
 
-
-func SelectTournament(population []genes.GenotypeI, s float64, selection SelectionI) []genes.GenotypeI {
-	return selection.selectPopulation(population, nil)
+func (s *TournamentSelection) SelectOffSpring(population []genes.GenotypeI, children []genes.GenotypeI) []genes.GenotypeI {
+	return s.SelectPopulation(append(population, children...))
 }

@@ -8,12 +8,11 @@ import (
 	"time"
 )
 
-
 type BestSelection struct {
 	*Selection
 }
 
-func (s *BestSelection) selectPopulation(population []genes.GenotypeI, a []float64) []genes.GenotypeI {
+func (s *BestSelection) SelectPopulation(population []genes.GenotypeI) []genes.GenotypeI {
 	sort.Sort(helper.ByFitness(population))
 	newPopulation := population[len(population)-s.Mu:]
 	rand.Seed(time.Now().UnixNano())
@@ -21,7 +20,6 @@ func (s *BestSelection) selectPopulation(population []genes.GenotypeI, a []float
 	return newPopulation
 }
 
-
-func SelectBest(population []genes.GenotypeI, s float64, selection SelectionI) []genes.GenotypeI {
-	return selection.selectPopulation(population, nil)
+func (s *BestSelection) SelectOffSpring(population []genes.GenotypeI, children []genes.GenotypeI) []genes.GenotypeI {
+	return s.SelectPopulation(append(population, children...))
 }

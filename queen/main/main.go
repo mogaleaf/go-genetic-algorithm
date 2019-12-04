@@ -14,10 +14,13 @@ func main() {
 		SizeChessBoard: 80,
 	}
 	populationSize := 500
-	selection := selection2.RouletteWheelSelection{
+	selection := selection2.ProbabilitySelection{
 		Selection: &selection2.Selection{
 			Mu: populationSize,
 		},
+		AlgoType:        selection2.ROULETTE,
+		ProbabilityType: selection2.RANK,
+		SP:              1.5,
 	}
 	selectionSurvivor := selection2.BestSelection{
 		Selection: &selection2.Selection{
@@ -26,12 +29,9 @@ func main() {
 	}
 	parentsSelection := evolution.SelectionConfig{
 		SelectionMethod: &selection,
-		ProbabilityType: selection2.RANK,
-		SP:              1.5,
 	}
 	survivorSelection := evolution.SelectionConfig{
 		SelectionMethod: &selectionSurvivor,
-		ProbabilityType: selection2.BEST,
 	}
 
 	evolve := evolution.NewEvolve(

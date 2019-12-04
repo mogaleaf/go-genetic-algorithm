@@ -3,6 +3,7 @@ package evolution
 import (
 	"go-evol/evolution/genes"
 	"go-evol/evolution/selection"
+	"go-evol/recorder"
 	"sync"
 )
 
@@ -22,10 +23,6 @@ type EvolutionConfig struct {
 type SelectionConfig struct {
 	// SelectionMethod method
 	SelectionMethod selection.SelectionI
-	//Probability type (FPS,RANK)
-	ProbabilityType selection.SelectionProbType
-	//For Rank selection SP
-	SP float64
 }
 
 type Evolve struct {
@@ -39,6 +36,8 @@ type Evolve struct {
 	ParentsSelectionConfig SelectionConfig
 	//Next generation Selection
 	SurvivorSelectionConfig SelectionConfig
+
+	Recoder recorder.Recoder
 }
 
 func NewEvolve(create genes.CreateRandomGeneFunc, options ...EvolveOpts) *Evolve {
@@ -52,16 +51,16 @@ func NewEvolve(create genes.CreateRandomGeneFunc, options ...EvolveOpts) *Evolve
 					Mu: 100,
 				},
 			},
-			ProbabilityType: selection.BEST,
 		},
 		ParentsSelectionConfig: SelectionConfig{
-			SelectionMethod: &selection.SusSelection{
+			SelectionMethod: &selection.ProbabilitySelection{
 				Selection: &selection.Selection{
 					Mu: 100,
 				},
+				SP:              1.5,
+				ProbabilityType: selection.RANK,
+				AlgoType:        selection.SUS,
 			},
-			SP:              1.5,
-			ProbabilityType: selection.RANK,
 		},
 	}
 	for _, option := range options {
@@ -96,6 +95,12 @@ func WithSurvivorSelectionConfig(selection SelectionConfig) EvolveOpts {
 	}
 }
 
+func WithNumberRecorder(recorder recorder.Recoder) EvolveOpts {
+	return func(e *Evolve) {
+		e.Recoder = recorder
+	}
+}
+
 func (e *Evolve) Evolve() (genes.PhenotypeI, int) {
 	//1. Initialise
 	population := initPopulation(e.Create, e.PopulationSize)
@@ -107,15 +112,24 @@ func (e *Evolve) Evolve() (genes.PhenotypeI, int) {
 	for i := 0; i < e.NumberIterationMax; i++ {
 		//1. Select parents
 		parents := selectParents(e.ParentsSelectionConfig, population)
+		if e.Recoder != nil {
+			e.Recoder.SelectedParents(parents, i)
+		}
 
 		//2.Recombine TODO
 		var children []genes.GenotypeI
 		for i := 0; i < len(parents)-1; i = i + 2 {
 			children = append(children, parents[i].Recombine(parents[i+1])...)
 		}
+		if e.Recoder != nil {
+			e.Recoder.CreatedOffspring(children, i)
+		}
 		//3. Mutate
 		for _, child := range children {
 			child.Mutate()
+		}
+		if e.Recoder != nil {
+			e.Recoder.MutatedOffspring(children, i)
 		}
 		//4. evaluate
 		winner := evaluate(children)
@@ -124,38 +138,19 @@ func (e *Evolve) Evolve() (genes.PhenotypeI, int) {
 		}
 		//5. Select next gen
 		population = selectNextGen(e.SurvivorSelectionConfig, population, children)
+		if e.Recoder != nil {
+			e.Recoder.NextGeneration(population, i)
+		}
 	}
 	return nil, e.NumberIterationMax
 }
 
 func selectParents(config SelectionConfig, population []genes.GenotypeI) []genes.GenotypeI {
-	var parents []genes.GenotypeI
-
-	switch config.ProbabilityType {
-	case selection.FPS:
-		parents = selection.SelectFPS(population, config.SelectionMethod)
-	case selection.RANK:
-		parents = selection.SelectRank(population, config.SP, config.SelectionMethod)
-	case selection.TOURNAMENT:
-		parents = selection.SelectTournament(population, config.SP, config.SelectionMethod)
-	}
-	return parents
+	return config.SelectionMethod.SelectPopulation(population)
 }
 
 func selectNextGen(config SelectionConfig, population []genes.GenotypeI, children []genes.GenotypeI) []genes.GenotypeI {
-	var nextGen []genes.GenotypeI
-
-	switch config.ProbabilityType {
-	case selection.FPS:
-		nextGen = selection.SelectFPS(append(population, children...), config.SelectionMethod)
-	case selection.RANK:
-		nextGen = selection.SelectRank(append(population, children...), config.SP, config.SelectionMethod)
-	case selection.BEST:
-		nextGen = selection.SelectBest(append(population, children...), config.SP, config.SelectionMethod)
-	case selection.REPLACE:
-		nextGen = children
-	}
-	return nextGen
+	return config.SelectionMethod.SelectOffSpring(population, children)
 }
 
 func initPopulation(createRandom func() genes.GenotypeI, populationSize int) []genes.GenotypeI {

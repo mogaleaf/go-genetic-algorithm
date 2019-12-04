@@ -12,8 +12,10 @@ type OneMaxProblem struct {
 }
 
 type phenotype struct {
-	value []uint8
-	l     int
+	value  []uint8
+	l      int
+	fit    float64
+	setFit bool
 }
 
 func GetPhenotype(g genes.GenotypeI) genes.PhenotypeI {
