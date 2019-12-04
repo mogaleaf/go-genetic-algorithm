@@ -1,6 +1,8 @@
 package binary
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_Genes(t *testing.T) {
 	t.Run("print", func(t *testing.T) {

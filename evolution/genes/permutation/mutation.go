@@ -1,6 +1,8 @@
 package permutation
 
-import "go-evol/helper"
+import (
+	"go-evol/helper"
+)
 
 func (g *Genotype) Mutate() {
 	// 80% chance to mutate

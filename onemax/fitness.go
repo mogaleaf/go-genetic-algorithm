@@ -8,7 +8,6 @@ func (p *phenotype) CalcFitness() float64 {
 	return count
 }
 
-//No diagonal checking
 func (p *phenotype) Good() bool {
 	return p.CalcFitness() == float64(p.l)
 }

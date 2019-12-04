@@ -1,8 +1,8 @@
 package queen
 
 import (
-	"go-evol/evolution"
-	"go-evol/evolution/permutation"
+	"go-evol/evolution/genes"
+	"go-evol/evolution/genes/permutation"
 	"math/rand"
 )
 
@@ -17,13 +17,13 @@ type phenotype struct {
 	fitness      float64
 }
 
-func GetPhenotype(g evolution.GenotypeI) evolution.PhenotypeI {
+func GetPhenotype(g genes.GenotypeI) genes.PhenotypeI {
 	return &phenotype{
 		board: g.(*permutation.Genotype).Permutation,
 	}
 }
 
-func (q *QueensChessBoard) NewRandQueenGenotype() evolution.GenotypeI {
+func (q *QueensChessBoard) NewRandQueenGenotype() genes.GenotypeI {
 	newGen := permutation.Genotype{
 		GetPhenotypeInternal: GetPhenotype,
 		Permutation:          rand.Perm(q.SizeChessBoard),

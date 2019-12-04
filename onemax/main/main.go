@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-evol/evolution"
+	selection2 "go-evol/evolution/selection"
 	"go-evol/onemax"
 )
 
@@ -10,24 +11,25 @@ func main() {
 	println("genetic algo")
 
 	q := onemax.OneMaxProblem{
-		L: 25,
+		L: 75,
 	}
 	populationSize := 100
-	selection := evolution.RouletteWheelSelection{
-		Selection: &evolution.Selection{
+	selection := selection2.TournamentSelection{
+		Selection: &selection2.Selection{
 			Mu: populationSize,
 		},
+		K:2,
 	}
 	parentsSelection := evolution.SelectionConfig{
 		SelectionMethod: &selection,
-		ProbabilityType: evolution.FPS,
+		ProbabilityType: selection2.TOURNAMENT,
 	}
 	survivorSelection := evolution.SelectionConfig{
-		ProbabilityType: evolution.REPLACE,
+		ProbabilityType: selection2.REPLACE,
 	}
 
 	evolve := evolution.NewEvolve(
-		q.NewRandQueenGenotype,
+		q.NewRandOneMaxGenotype,
 		evolution.WithNumberIterationMax(100),
 		evolution.WithPopulationSize(populationSize),
 		evolution.WithParentsSelectionConfig(parentsSelection),

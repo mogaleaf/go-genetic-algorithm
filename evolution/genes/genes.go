@@ -1,4 +1,4 @@
-package evolution
+package genes
 
 type PhenotypeI interface {
 	CalcFitness() float64

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-evol/evolution"
+	selection2 "go-evol/evolution/selection"
 	"go-evol/queen"
 )
 
@@ -13,24 +14,24 @@ func main() {
 		SizeChessBoard: 80,
 	}
 	populationSize := 500
-	selection := evolution.RouletteWheelSelection{
-		Selection: &evolution.Selection{
+	selection := selection2.RouletteWheelSelection{
+		Selection: &selection2.Selection{
 			Mu: populationSize,
 		},
 	}
-	selectionSurvivor := evolution.BestSelection{
-		Selection: &evolution.Selection{
+	selectionSurvivor := selection2.BestSelection{
+		Selection: &selection2.Selection{
 			Mu: populationSize,
 		},
 	}
 	parentsSelection := evolution.SelectionConfig{
 		SelectionMethod: &selection,
-		ProbabilityType: evolution.RANK,
+		ProbabilityType: selection2.RANK,
 		SP:              1.5,
 	}
 	survivorSelection := evolution.SelectionConfig{
 		SelectionMethod: &selectionSurvivor,
-		ProbabilityType: evolution.BEST,
+		ProbabilityType: selection2.BEST,
 	}
 
 	evolve := evolution.NewEvolve(

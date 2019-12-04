@@ -10,7 +10,7 @@ func TestPhenotype_CalcFitness(t *testing.T) {
 			board: []int{2, 7, 3, 6, 0, 5, 1, 4},
 		}
 		pTest.Print()
-		//pTest := NewRandQueenGenotype().GetPhenotype()
+		//pTest := NewRandOneMaxGenotype().GetPhenotype()
 		//pTest.Print()
 		fitness := pTest.CalcFitness()
 		println(fitness)

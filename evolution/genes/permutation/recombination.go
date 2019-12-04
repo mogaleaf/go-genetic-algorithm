@@ -1,7 +1,7 @@
 package permutation
 
 import (
-	"go-evol/evolution"
+	"go-evol/evolution/genes"
 	"go-evol/helper"
 )
 
@@ -19,10 +19,10 @@ func copyGenotype(p1 *Genotype) *Genotype {
 	}
 }
 
-func (g *Genotype) Recombine(p2 evolution.GenotypeI) []evolution.GenotypeI {
+func (g *Genotype) Recombine(p2 genes.GenotypeI) []genes.GenotypeI {
 	shouldRecombine := helper.GenerateFloatNumber() < g.RecombinationRate
 	if !shouldRecombine {
-		return []evolution.GenotypeI{
+		return []genes.GenotypeI{
 			copyGenotype(g),
 			copyGenotype(p2.(*Genotype)),
 		}
@@ -34,10 +34,10 @@ func (g *Genotype) Recombine(p2 evolution.GenotypeI) []evolution.GenotypeI {
 	return nil
 }
 
-func (p1 *Genotype) RecombineCutAndCrossFill(p2 evolution.GenotypeI) []evolution.GenotypeI {
+func (p1 *Genotype) RecombineCutAndCrossFill(p2 genes.GenotypeI) []genes.GenotypeI {
 	swapK := helper.GenerateUintNumber(len(p1.Permutation))
 	if swapK == 0 {
-		return []evolution.GenotypeI{
+		return []genes.GenotypeI{
 			copyGenotype(p1),
 			copyGenotype(p2.(*Genotype)),
 		}
@@ -50,7 +50,7 @@ func (p1 *Genotype) RecombineCutAndCrossFill(p2 evolution.GenotypeI) []evolution
 	}
 	fillWithMissing(k1.Permutation, p2.(*Genotype).Permutation, int(swapK))
 	fillWithMissing(k2.Permutation, p1.Permutation, int(swapK))
-	return []evolution.GenotypeI{k1, k2}
+	return []genes.GenotypeI{k1, k2}
 }
 
 func buildNewFromParent(p1 *Genotype) *Genotype {

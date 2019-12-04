@@ -1,7 +1,7 @@
 package binary
 
 import (
-	"go-evol/evolution"
+	"go-evol/evolution/genes"
 	"go-evol/helper"
 )
 
@@ -17,10 +17,10 @@ func copyGenotype(p1 *Genotype) *Genotype {
 	}
 }
 
-func (g *Genotype) Recombine(p2 evolution.GenotypeI) []evolution.GenotypeI {
+func (g *Genotype) Recombine(p2 genes.GenotypeI) []genes.GenotypeI {
 	shouldRecombine := helper.GenerateFloatNumber() < g.RecombinationRate
 	if !shouldRecombine {
-		return []evolution.GenotypeI{
+		return []genes.GenotypeI{
 			copyGenotype(g),
 			copyGenotype(p2.(*Genotype)),
 		}
@@ -32,10 +32,10 @@ func (g *Genotype) Recombine(p2 evolution.GenotypeI) []evolution.GenotypeI {
 	return nil
 }
 
-func (p1 *Genotype) RecombineCrossFill(p2 evolution.GenotypeI) []evolution.GenotypeI {
+func (p1 *Genotype) RecombineCrossFill(p2 genes.GenotypeI) []genes.GenotypeI {
 	swapK := helper.GenerateUintNumber(p1.L)
 	if swapK == 0 {
-		return []evolution.GenotypeI{
+		return []genes.GenotypeI{
 			copyGenotype(p1),
 			copyGenotype(p2.(*Genotype)),
 		}
@@ -50,7 +50,7 @@ func (p1 *Genotype) RecombineCrossFill(p2 evolution.GenotypeI) []evolution.Genot
 		k2.Value[j] = p1.Value[j]
 		k1.Value[j] = p2.(*Genotype).Value[j]
 	}
-	return []evolution.GenotypeI{k1, k2}
+	return []genes.GenotypeI{k1, k2}
 }
 
 func buildNewFromParent(p1 *Genotype) *Genotype {

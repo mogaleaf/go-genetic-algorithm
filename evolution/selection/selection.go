@@ -1,6 +1,7 @@
-package evolution
+package selection
 
 import (
+	"go-evol/evolution/genes"
 	"go-evol/helper"
 	"math/rand"
 	"sort"
@@ -12,12 +13,13 @@ type SelectionProbType int
 const (
 	FPS SelectionProbType = iota
 	RANK
+	TOURNAMENT
 	BEST
 	REPLACE
 )
 
 type SelectionI interface {
-	selectPopulation(population []GenotypeI, a []float64) []GenotypeI
+	selectPopulation(population []genes.GenotypeI, a []float64) []genes.GenotypeI
 	getMu() int
 }
 
@@ -37,7 +39,12 @@ type BestSelection struct {
 	*Selection
 }
 
-func selectFPS(population []GenotypeI, selection SelectionI) []GenotypeI {
+type TournamentSelection struct {
+	*Selection
+	K int
+}
+
+func SelectFPS(population []genes.GenotypeI, selection SelectionI) []genes.GenotypeI {
 	parentsPr := make([]float64, len(population))
 	a := make([]float64, len(population))
 	sum := 0.0
@@ -53,10 +60,10 @@ func selectFPS(population []GenotypeI, selection SelectionI) []GenotypeI {
 	return selection.selectPopulation(population, a)
 }
 
-func selectRank(population []GenotypeI, s float64, selection SelectionI) []GenotypeI {
+func SelectRank(population []genes.GenotypeI, s float64, selection SelectionI) []genes.GenotypeI {
 	parentsPr := make([]float64, len(population))
 	a := make([]float64, len(population))
-	sort.Sort(byFitness(population))
+	sort.Sort(helper.ByFitness(population))
 	accumulateProb := 0.0
 	for i := 0; i < len(population); i++ {
 		parentsPr[i] = (2-s)/float64(selection.getMu()) + 2*(float64(i))*(s-1)/(float64(selection.getMu())*(float64(selection.getMu())-1))
@@ -66,7 +73,11 @@ func selectRank(population []GenotypeI, s float64, selection SelectionI) []Genot
 	return selection.selectPopulation(population, a)
 }
 
-func selectBest(population []GenotypeI, s float64, selection SelectionI) []GenotypeI {
+func SelectTournament(population []genes.GenotypeI, s float64, selection SelectionI) []genes.GenotypeI {
+	return selection.selectPopulation(population, nil)
+}
+
+func SelectBest(population []genes.GenotypeI, s float64, selection SelectionI) []genes.GenotypeI {
 	return selection.selectPopulation(population, nil)
 }
 
@@ -74,8 +85,8 @@ func (r *Selection) getMu() int {
 	return r.Mu
 }
 
-func (r *RouletteWheelSelection) selectPopulation(population []GenotypeI, a []float64) []GenotypeI {
-	matingPool := make([]GenotypeI, r.Mu)
+func (r *RouletteWheelSelection) selectPopulation(population []genes.GenotypeI, a []float64) []genes.GenotypeI {
+	matingPool := make([]genes.GenotypeI, r.Mu)
 	currentMember := 0
 	for currentMember < r.Mu {
 		r := helper.GenerateFloatNumber()
@@ -88,10 +99,10 @@ func (r *RouletteWheelSelection) selectPopulation(population []GenotypeI, a []fl
 	return matingPool
 }
 
-func (s *SusSelection) selectPopulation(population []GenotypeI, a []float64) []GenotypeI {
+func (s *SusSelection) selectPopulation(population []genes.GenotypeI, a []float64) []genes.GenotypeI {
 	currentMember := 0
 	i := 0
-	matingPool := make([]GenotypeI, s.Mu)
+	matingPool := make([]genes.GenotypeI, s.Mu)
 	r := helper.GenerateFloatNumberRange(1 / float64(s.Mu))
 	for currentMember < s.Mu {
 		for r <= a[i] {
@@ -104,10 +115,24 @@ func (s *SusSelection) selectPopulation(population []GenotypeI, a []float64) []G
 	return matingPool
 }
 
-func (s *BestSelection) selectPopulation(population []GenotypeI, a []float64) []GenotypeI {
-	sort.Sort(byFitness(population))
+func (s *BestSelection) selectPopulation(population []genes.GenotypeI, a []float64) []genes.GenotypeI {
+	sort.Sort(helper.ByFitness(population))
 	newPopulation := population[len(population)-s.Mu:]
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(newPopulation), func(i, j int) { newPopulation[i], newPopulation[j] = newPopulation[j], newPopulation[i] })
+	return newPopulation
+}
+
+func (s *TournamentSelection) selectPopulation(population []genes.GenotypeI, a []float64) []genes.GenotypeI {
+	var newPopulation []genes.GenotypeI
+	for i := 0; i < s.Mu; i++ {
+		var currParent []genes.GenotypeI
+		for j := 0; j < s.K; j++ {
+			randK := helper.GenerateUintNumber(len(population))
+			currParent = append(currParent, population[randK])
+		}
+		sort.Sort(helper.ByFitness(currParent))
+		newPopulation = append(newPopulation, currParent[len(currParent)-1])
+	}
 	return newPopulation
 }

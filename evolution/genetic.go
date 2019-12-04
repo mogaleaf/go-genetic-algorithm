@@ -1,12 +1,14 @@
 package evolution
 
 import (
+	"go-evol/evolution/genes"
+	"go-evol/evolution/selection"
 	"sync"
 )
 
 type EvolutionConfig struct {
 	// Randomly create the genotype
-	Create CreateRandomGeneFunc
+	Create genes.CreateRandomGeneFunc
 	// Max iteration before stopping
 	NumberIterationMax int
 	// Size of the population
@@ -19,16 +21,16 @@ type EvolutionConfig struct {
 
 type SelectionConfig struct {
 	// SelectionMethod method
-	SelectionMethod SelectionI
+	SelectionMethod selection.SelectionI
 	//Probability type (FPS,RANK)
-	ProbabilityType SelectionProbType
+	ProbabilityType selection.SelectionProbType
 	//For Rank selection SP
 	SP float64
 }
 
 type Evolve struct {
 	// Randomly create the genotype
-	Create CreateRandomGeneFunc
+	Create genes.CreateRandomGeneFunc
 	// Max iteration before stopping
 	NumberIterationMax int
 	// Size of the population
@@ -39,27 +41,27 @@ type Evolve struct {
 	SurvivorSelectionConfig SelectionConfig
 }
 
-func NewEvolve(create CreateRandomGeneFunc, options ...EvolveOpts) *Evolve {
+func NewEvolve(create genes.CreateRandomGeneFunc, options ...EvolveOpts) *Evolve {
 	e := &Evolve{
 		Create:             create,
 		NumberIterationMax: 100,
 		PopulationSize:     100,
 		SurvivorSelectionConfig: SelectionConfig{
-			SelectionMethod: &BestSelection{
-				Selection: &Selection{
+			SelectionMethod: &selection.BestSelection{
+				Selection: &selection.Selection{
 					Mu: 100,
 				},
 			},
-			ProbabilityType: BEST,
+			ProbabilityType: selection.BEST,
 		},
 		ParentsSelectionConfig: SelectionConfig{
-			SelectionMethod: &SusSelection{
-				Selection: &Selection{
+			SelectionMethod: &selection.SusSelection{
+				Selection: &selection.Selection{
 					Mu: 100,
 				},
 			},
 			SP:              1.5,
-			ProbabilityType: RANK,
+			ProbabilityType: selection.RANK,
 		},
 	}
 	for _, option := range options {
@@ -94,7 +96,7 @@ func WithSurvivorSelectionConfig(selection SelectionConfig) EvolveOpts {
 	}
 }
 
-func (e *Evolve) Evolve() (PhenotypeI, int) {
+func (e *Evolve) Evolve() (genes.PhenotypeI, int) {
 	//1. Initialise
 	population := initPopulation(e.Create, e.PopulationSize)
 	//2. evaluate
@@ -107,7 +109,7 @@ func (e *Evolve) Evolve() (PhenotypeI, int) {
 		parents := selectParents(e.ParentsSelectionConfig, population)
 
 		//2.Recombine TODO
-		var children []GenotypeI
+		var children []genes.GenotypeI
 		for i := 0; i < len(parents)-1; i = i + 2 {
 			children = append(children, parents[i].Recombine(parents[i+1])...)
 		}
@@ -126,48 +128,50 @@ func (e *Evolve) Evolve() (PhenotypeI, int) {
 	return nil, e.NumberIterationMax
 }
 
-func selectParents(config SelectionConfig, population []GenotypeI) []GenotypeI {
-	var parents []GenotypeI
+func selectParents(config SelectionConfig, population []genes.GenotypeI) []genes.GenotypeI {
+	var parents []genes.GenotypeI
 
 	switch config.ProbabilityType {
-	case FPS:
-		parents = selectFPS(population, config.SelectionMethod)
-	case RANK:
-		parents = selectRank(population, config.SP, config.SelectionMethod)
+	case selection.FPS:
+		parents = selection.SelectFPS(population, config.SelectionMethod)
+	case selection.RANK:
+		parents = selection.SelectRank(population, config.SP, config.SelectionMethod)
+	case selection.TOURNAMENT:
+		parents = selection.SelectTournament(population, config.SP, config.SelectionMethod)
 	}
 	return parents
 }
 
-func selectNextGen(config SelectionConfig, population []GenotypeI, children []GenotypeI) []GenotypeI {
-	var nextGen []GenotypeI
+func selectNextGen(config SelectionConfig, population []genes.GenotypeI, children []genes.GenotypeI) []genes.GenotypeI {
+	var nextGen []genes.GenotypeI
 
 	switch config.ProbabilityType {
-	case FPS:
-		nextGen = selectFPS(append(population, children...), config.SelectionMethod)
-	case RANK:
-		nextGen = selectRank(append(population, children...), config.SP, config.SelectionMethod)
-	case BEST:
-		nextGen = selectBest(append(population, children...), config.SP, config.SelectionMethod)
-	case REPLACE:
+	case selection.FPS:
+		nextGen = selection.SelectFPS(append(population, children...), config.SelectionMethod)
+	case selection.RANK:
+		nextGen = selection.SelectRank(append(population, children...), config.SP, config.SelectionMethod)
+	case selection.BEST:
+		nextGen = selection.SelectBest(append(population, children...), config.SP, config.SelectionMethod)
+	case selection.REPLACE:
 		nextGen = children
 	}
 	return nextGen
 }
 
-func initPopulation(createRandom func() GenotypeI, populationSize int) []GenotypeI {
-	is := make([]GenotypeI, populationSize)
+func initPopulation(createRandom func() genes.GenotypeI, populationSize int) []genes.GenotypeI {
+	is := make([]genes.GenotypeI, populationSize)
 	for i := 0; i < populationSize; i++ {
 		is[i] = createRandom()
 	}
 	return is
 }
 
-func evaluate(population []GenotypeI) PhenotypeI {
-	phenotypeResponse := make(chan PhenotypeI, len(population))
+func evaluate(population []genes.GenotypeI) genes.PhenotypeI {
+	phenotypeResponse := make(chan genes.PhenotypeI, len(population))
 	var wg sync.WaitGroup
 	wg.Add(len(population))
 	for _, child := range population {
-		go func(child GenotypeI) {
+		go func(child genes.GenotypeI) {
 			defer wg.Done()
 			phenotype := child.GetPhenotype()
 			if phenotype.Good() {

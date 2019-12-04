@@ -2,7 +2,7 @@ package permutation
 
 import (
 	"fmt"
-	"go-evol/evolution"
+	"go-evol/evolution/genes"
 )
 
 type MutationType int
@@ -21,8 +21,8 @@ type Genotype struct {
 	RecombinationRate    float64
 	MutationType         MutationType
 	RecombinationType    RecombinationType
-	GetPhenotypeInternal func(evolution.GenotypeI) evolution.PhenotypeI
-	phenotype            evolution.PhenotypeI
+	GetPhenotypeInternal func(genes.GenotypeI) genes.PhenotypeI
+	phenotype            genes.PhenotypeI
 }
 
 type GenotypeConfig struct {
@@ -31,7 +31,7 @@ type GenotypeConfig struct {
 	MutationType    MutationType
 }
 
-func (g *Genotype) GetPhenotype() evolution.PhenotypeI {
+func (g *Genotype) GetPhenotype() genes.PhenotypeI {
 	if g.phenotype != nil {
 		return g.phenotype
 	}
