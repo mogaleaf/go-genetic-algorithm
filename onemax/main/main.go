@@ -5,6 +5,7 @@ import (
 	"go-evol/evolution"
 	"go-evol/evolution/genes"
 	selection2 "go-evol/evolution/selection"
+	"go-evol/helper"
 	"go-evol/onemax"
 
 	"golang.org/x/image/colornames"
@@ -14,21 +15,41 @@ import (
 )
 
 func main() {
+	//Tournament selection Mean: 62.500 , sd: 6.317
+	// FPS using Rank SUS Mean: 94.300 , sd: 12.582
+	numberOfRun := 3
+	runs, count := iterateAlgo(numberOfRun)
+	mean := float64(count) / float64(numberOfRun)
+	deviationInt := helper.StandardDeviationInt(runs, count)
+	println(fmt.Sprintf("Mean: %0.3f , sd: %0.3f", mean, deviationInt))
+}
+
+func iterateAlgo(numberOfRun int) ([]int, int) {
+	count := 0
+	time := make([]int, numberOfRun)
+	for i := 0; i < numberOfRun; i++ {
+		time[i] = launch(i)
+		count += time[i]
+	}
+	return time, count
+}
+
+func launch(iterNumber int) int {
 	println("genetic algo")
 
 	q := onemax.OneMaxProblem{
 		L: 75,
 	}
 	populationSize := 100
-	parentSelection := selection2.TournamentSelection{
+	parentSelection := selection2.ProbabilitySelection{
 		Selection: &selection2.Selection{
 			Mu: populationSize,
 		},
-		//ProbabilityType:selection2.RANK,
-		//AlgoType:selection2.SUS,
-		//SP:1.5,
+		ProbabilityType: selection2.FPS,
+		AlgoType:        selection2.SUS,
+		SP:              1.5,
 
-		K: 2,
+		//K: 2,
 	}
 	survivorSelection := selection2.ReplaceSelection{
 		Selection: &selection2.Selection{
@@ -57,8 +78,8 @@ func main() {
 	} else {
 		println("Not found")
 	}
-	recorder.Plot.Save(10*vg.Centimeter, 5*vg.Centimeter, "evolution.png")
-
+	recorder.Plot.Save(10*vg.Centimeter, 5*vg.Centimeter, fmt.Sprintf("evolution%d.png", iterNumber))
+	return it
 }
 
 func NewMyRecorder() *MyRecorder {
