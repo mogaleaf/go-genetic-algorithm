@@ -4,6 +4,7 @@ import (
 	"go-evol/evolution/genes"
 	"go-evol/evolution/selection"
 	"go-evol/recorder"
+	"math/rand"
 	"sync"
 )
 
@@ -146,7 +147,9 @@ func (e *Evolve) Evolve() (genes.PhenotypeI, int) {
 }
 
 func selectParents(config SelectionConfig, population []genes.GenotypeI) []genes.GenotypeI {
-	return config.SelectionMethod.SelectPopulation(population)
+	selectPopulation := config.SelectionMethod.SelectPopulation(population)
+	rand.Shuffle(len(selectPopulation), func(i, j int) { selectPopulation[i], selectPopulation[j] = selectPopulation[j], selectPopulation[i] })
+	return selectPopulation
 }
 
 func selectNextGen(config SelectionConfig, population []genes.GenotypeI, children []genes.GenotypeI) []genes.GenotypeI {
