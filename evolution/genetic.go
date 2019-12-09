@@ -13,7 +13,7 @@ type EvolutionConfig struct {
 	Create genes.CreateRandomGeneFunc
 	// Max iteration before stopping
 	NumberIterationMax int
-	// Size of the population
+	// size of the population
 	PopulationSize int
 	//SelectionMethod of the parents
 	ParentsSelectionConfig SelectionConfig
@@ -31,7 +31,7 @@ type Evolve struct {
 	Create genes.CreateRandomGeneFunc
 	// Max iteration before stopping
 	NumberIterationMax int
-	// Size of the population
+	// size of the population
 	PopulationSize int
 	//SelectionMethod of the parents
 	ParentsSelectionConfig SelectionConfig

@@ -9,12 +9,7 @@ func (p *phenotype) CalcFitness() float64 {
 	rowN := 0
 	colN := 0
 	count := 0
-	mat := make([][]int, len(p.combi)/2)
-	for i := 0; i < len(p.combi)/2; i++ {
-		mat[i] = make([]int, len(p.combi)/2)
-	}
 	for i := 0; i < len(p.combi); i++ {
-
 		if p.combi[i] < len(p.combi)/2 {
 			row[rowN] = p.combi[i]
 			rowN++
@@ -23,15 +18,10 @@ func (p *phenotype) CalcFitness() float64 {
 			colN++
 		}
 	}
-	for i := 0; i < len(row); i++ {
-		for j := 0; j < len(col); j++ {
-			mat[i][j] = p.TriangularProblem.Values[row[i]][col[j]]
-		}
-	}
 
 	for i := 0; i < len(row); i++ {
 		for j := 0; j < i; j++ {
-			if mat[i][j] == 0 {
+			if p.TriangularProblem.Values[row[i]][col[j]] == 0 {
 				count++
 			}
 		}
@@ -43,9 +33,5 @@ func (p *phenotype) CalcFitness() float64 {
 
 //No diagonal checking
 func (p *phenotype) Good() bool {
-	count := 0
-	for i := 1; i < len(p.combi)/2; i++ {
-		count += len(p.combi)/2 - i
-	}
-	return int(p.CalcFitness()) == count
+	return int(p.CalcFitness()) == p.TriangularProblem.maxZeros
 }

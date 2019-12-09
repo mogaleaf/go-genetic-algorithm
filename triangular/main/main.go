@@ -11,8 +11,8 @@ import (
 func main() {
 	println("genetic algo")
 
-	q := triangular.TriangularProblem{
-		Values: [][]int{
+	q := triangular.NewTriangularProblem(
+		[][]int{
 			{
 				2, 3, 0, 0,
 			},
@@ -26,8 +26,8 @@ func main() {
 				35, 10, 45, 46,
 			},
 		},
-		Size: 4,
-	}
+	)
+
 	populationSize := 10
 	selection := selection2.ProbabilitySelection{
 		Selection: &selection2.Selection{

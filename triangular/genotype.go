@@ -8,8 +8,21 @@ import (
 )
 
 type TriangularProblem struct {
-	Size   int
-	Values [][]int
+	size     int
+	Values   [][]int
+	maxZeros int
+}
+
+func NewTriangularProblem(values [][]int) *TriangularProblem {
+	count := 0
+	for i := 1; i < len(values); i++ {
+		count += len(values) - i
+	}
+	return &TriangularProblem{
+		maxZeros: count,
+		size:     len(values),
+		Values:   values,
+	}
 }
 
 //Internal queen phenotype
@@ -30,8 +43,8 @@ func GetPhenotype(g genes.GenotypeI) genes.PhenotypeI {
 func (q *TriangularProblem) NewRandTriangularGenotype() genes.GenotypeI {
 	newGen := &permutation.Genotype{
 		GetPhenotypeInternal: GetPhenotype,
-		Permutation:          rand.Perm(q.Size * 2),
-		PermutationSize:      q.Size * 2,
+		Permutation:          rand.Perm(q.size * 2),
+		PermutationSize:      q.size * 2,
 		RecombinationType:    permutation.CUT_CROSS_FILL,
 		RecombinationRate:    0.9,
 		MutationRate:         0.8,
@@ -56,6 +69,18 @@ func (p *phenotype) Print() {
 			colN++
 		}
 	}
+	println()
+	print("ROW ORDER: [")
+	for i := 0; i < len(row); i++ {
+		print(fmt.Sprintf(" %d ", row[i]))
+	}
+	print("]")
+	println()
+	print("COL ORDER:[")
+	for i := 0; i < len(col); i++ {
+		print(fmt.Sprintf(" %d ", col[i]))
+	}
+	print("]")
 	println()
 	for i := 0; i < len(row); i++ {
 		for j := 0; j < len(col); j++ {
