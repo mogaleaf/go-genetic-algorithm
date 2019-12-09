@@ -16,6 +16,7 @@ func copyGenotype(p1 *Genotype) *Genotype {
 		MutationRate:         p1.MutationRate,
 		RecombinationRate:    p1.RecombinationRate,
 		RecombinationType:    p1.RecombinationType,
+		Data:                 p1.Data,
 	}
 }
 
@@ -62,6 +63,7 @@ func buildNewFromParent(p1 *Genotype) *Genotype {
 		MutationRate:         p1.MutationRate,
 		RecombinationRate:    p1.RecombinationRate,
 		RecombinationType:    p1.RecombinationType,
+		Data:                 p1.Data,
 	}
 }
 
