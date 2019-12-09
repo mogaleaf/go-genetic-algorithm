@@ -43,5 +43,9 @@ func (p *phenotype) CalcFitness() float64 {
 
 //No diagonal checking
 func (p *phenotype) Good() bool {
-	return int(p.CalcFitness()) == (len(p.combi) / 2)
+	count := 0
+	for i := 1; i < len(p.combi)/2; i++ {
+		count += len(p.combi)/2 - i
+	}
+	return int(p.CalcFitness()) == count
 }

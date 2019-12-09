@@ -14,16 +14,19 @@ func main() {
 	q := triangular.TriangularProblem{
 		Values: [][]int{
 			{
-				2, 3, 0,
+				2, 3, 0, 0,
 			},
 			{
-				20, 30, 10,
+				20, 30, 10, 0,
 			},
 			{
-				35, 0, 0,
+				35, 0, 0, 0,
+			},
+			{
+				35, 10, 45, 46,
 			},
 		},
-		Size: 3,
+		Size: 4,
 	}
 	populationSize := 10
 	selection := selection2.ProbabilitySelection{
