@@ -8,6 +8,9 @@ import (
 	"go-evol/triangular"
 )
 
+/**
+ * Can the Matrix be Triangular by permutations of its columns and rows ?
+ */
 func main() {
 	println("genetic algo")
 

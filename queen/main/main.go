@@ -7,6 +7,9 @@ import (
 	"go-evol/queen"
 )
 
+/**
+ * Place each queens on the board so they don't check each others
+ */
 func main() {
 	println("genetic algo")
 

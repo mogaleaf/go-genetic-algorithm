@@ -14,6 +14,9 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
+/**
+ * Find 111111 solution
+ */
 func main() {
 	//Tournament selection Mean: 62.500 , sd: 6.317
 	// FPS using Rank SUS Mean: 94.300 , sd: 12.582
