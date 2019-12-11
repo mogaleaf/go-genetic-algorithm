@@ -23,6 +23,7 @@ type Genotype struct {
 	RecombinationType    RecombinationType
 	GetPhenotypeInternal func(genes.GenotypeI) genes.PhenotypeI
 	phenotype            genes.PhenotypeI
+	Data                 interface{}
 }
 
 func (g *Genotype) GetPhenotype() genes.PhenotypeI {
