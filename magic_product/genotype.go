@@ -1,13 +1,13 @@
-package queen
+package magic_product
 
 import (
+	"fmt"
 	"go-evol/evolution/genes"
 	"go-evol/evolution/genes/permutation"
-	"go-evol/helper"
+	"math/rand"
 )
 
-type QueensChessBoard struct {
-	SizeChessBoard int
+type MagicNumberBoard struct {
 }
 
 //Internal queen phenotype
@@ -23,11 +23,11 @@ func GetPhenotype(g genes.GenotypeI) genes.PhenotypeI {
 	}
 }
 
-func (q *QueensChessBoard) NewRandQueenGenotype() genes.GenotypeI {
+func (q *MagicNumberBoard) NewRandMagicProductGenotype() genes.GenotypeI {
 	newGen := permutation.Genotype{
 		GetPhenotypeInternal: GetPhenotype,
-		Permutation:          helper.Perm(q.SizeChessBoard),
-		PermutationSize:      q.SizeChessBoard,
+		Permutation:          Init(),
+		PermutationSize:      3,
 		RecombinationType:    permutation.CUT_CROSS_FILL,
 		RecombinationRate:    0.9,
 		MutationRate:         0.8,
@@ -37,14 +37,20 @@ func (q *QueensChessBoard) NewRandQueenGenotype() genes.GenotypeI {
 }
 
 func (p *phenotype) Print() {
-	for i := 0; i < len(p.board); i++ {
-		for j := 0; j < len(p.board); j++ {
-			if j == int(p.board[i]) {
-				print(" 1 ")
-			} else {
-				print(" 0 ")
-			}
-		}
+	for i := 0; i < 3; i++ {
+		fmt.Print(fmt.Sprintf("%0.2f  %0.2f %0.2f", p.board[i*3], p.board[i*3+1], p.board[i*3+2]))
 		println()
 	}
+}
+
+func Init() []float64 {
+	m := []float64{1.0, 2.0, 3.0, 6.0, 1.0 / 2.0, 1.0 / 3.0, 1.0 / 6.0, 2.0 / 3.0, 3.0 / 2.0}
+
+	for i := 0; i < 9; i++ {
+		j := rand.Intn(i + 1)
+		tmp := m[i]
+		m[i] = m[j]
+		m[j] = tmp
+	}
+	return m
 }

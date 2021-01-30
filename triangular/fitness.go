@@ -10,11 +10,11 @@ func (p *phenotype) CalcFitness() float64 {
 	colN := 0
 	count := 0
 	for i := 0; i < len(p.combi); i++ {
-		if p.combi[i] < len(p.combi)/2 {
-			row[rowN] = p.combi[i]
+		if int(p.combi[i]) < len(p.combi)/2 {
+			row[rowN] = int(p.combi[i])
 			rowN++
 		} else {
-			col[colN] = len(p.combi) - 1 - p.combi[i]
+			col[colN] = len(p.combi) - 1 - int(p.combi[i])
 			colN++
 		}
 	}

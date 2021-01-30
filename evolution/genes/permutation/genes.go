@@ -15,7 +15,7 @@ const (
 )
 
 type Genotype struct {
-	Permutation          []int
+	Permutation          []float64
 	PermutationSize      int
 	MutationRate         float64
 	RecombinationRate    float64
@@ -43,7 +43,7 @@ func (g *Genotype) GetPhenotype() genes.PhenotypeI {
 
 func (g *Genotype) Print() {
 	for j := 0; j < len(g.Permutation); j++ {
-		print(fmt.Sprintf("%d", g.Permutation[j]))
+		print(fmt.Sprintf("%0.2f", g.Permutation[j]))
 	}
 	println()
 }

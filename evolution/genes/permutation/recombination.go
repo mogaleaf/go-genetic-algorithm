@@ -6,7 +6,7 @@ import (
 )
 
 func copyGenotype(p1 *Genotype) *Genotype {
-	copyPerm := make([]int, len(p1.Permutation))
+	copyPerm := make([]float64, len(p1.Permutation))
 	copy(copyPerm, p1.Permutation)
 	return &Genotype{
 		Permutation:          copyPerm,
@@ -56,7 +56,7 @@ func (p1 *Genotype) RecombineCutAndCrossFill(p2 genes.GenotypeI) []genes.Genotyp
 
 func buildNewFromParent(p1 *Genotype) *Genotype {
 	return &Genotype{
-		Permutation:          make([]int, len(p1.Permutation)),
+		Permutation:          make([]float64, len(p1.Permutation)),
 		PermutationSize:      p1.PermutationSize,
 		MutationType:         p1.MutationType,
 		GetPhenotypeInternal: p1.GetPhenotypeInternal,
@@ -67,7 +67,7 @@ func buildNewFromParent(p1 *Genotype) *Genotype {
 	}
 }
 
-func contains(slice []int, value int) bool {
+func contains(slice []float64, value float64) bool {
 	for j := 0; j < len(slice); j++ {
 		if slice[j] == value {
 			return true
@@ -76,7 +76,7 @@ func contains(slice []int, value int) bool {
 	return false
 }
 
-func fillWithMissing(toFill []int, with []int, swapK int) {
+func fillWithMissing(toFill []float64, with []float64, swapK int) {
 	j := 0
 	i := swapK
 	for i < len(with) && j < len(with) {

@@ -4,18 +4,16 @@ import (
 	"fmt"
 	"go-evol/evolution"
 	selection2 "go-evol/evolution/selection"
-	"go-evol/queen"
+	"go-evol/magic_product"
 )
 
 /**
- *
+ * Add the magic product problem from my son hmw (find the square where the product of each lines,each col, each diag is one with float 1,2,3,6,1/2,1/3,2/3,3/2,1/6)
  */
 func main() {
 	println("genetic algo")
 
-	q := queen.QueensChessBoard{
-		SizeChessBoard: 5,
-	}
+	q := magic_product.MagicNumberBoard{}
 	populationSize := 500
 	selection := selection2.ProbabilitySelection{
 		Selection: &selection2.Selection{
@@ -38,7 +36,7 @@ func main() {
 	}
 
 	evolve := evolution.NewEvolve(
-		q.NewRandQueenGenotype,
+		q.NewRandMagicProductGenotype,
 		evolution.WithNumberIterationMax(50000),
 		evolution.WithPopulationSize(populationSize),
 		evolution.WithParentsSelectionConfig(parentsSelection),

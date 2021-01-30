@@ -20,3 +20,14 @@ func GenerateFloatNumberRange(a float64) float64 {
 	f := rand.Float64()
 	return f * a
 }
+
+// Perm returns, as a slice of n ints, a pseudo-random permutation of the integers [0,n).
+func Perm(n int) []float64 {
+	m := make([]float64, n)
+	for i := 0; i < n; i++ {
+		j := rand.Intn(i + 1)
+		m[i] = m[j]
+		m[j] = float64(i)
+	}
+	return m
+}
